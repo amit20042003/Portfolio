@@ -103,6 +103,23 @@
             width: 100%;
             text-align: center;
         }
+        
+        /* --- Scroll Progress Bar --- */
+        #progress-bar-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            z-index: 100;
+            background-color: transparent;
+        }
+        #progress-bar {
+            height: 100%;
+            width: 0%;
+            background-image: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+            transition: width 0.1s linear;
+        }
 
         /* --- Particle Canvas --- */
         #particle-canvas {
@@ -294,6 +311,12 @@
             position: relative;
             z-index: 2;
         }
+        .section-title, .section-subtitle {
+            /* Add animation classes to these elements */
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
         .section-title {
             font-size: 2.25rem;
             font-weight: 700;
@@ -308,24 +331,37 @@
              max-width: 40rem;
              margin-left: auto;
              margin-right: auto;
+             transition-delay: 0.2s;
+        }
+        .section-title.is-in-view, .section-subtitle.is-in-view {
+             opacity: 1;
+             transform: translateY(0);
         }
         
-        /* --- Animation --- */
-        .animated-section {
+        /* --- NEW: Scroll Animation --- */
+        .animate-on-scroll {
             opacity: 0;
-            transform: translateY(50px);
-            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
         }
-        .animated-section.is-visible {
+        .animate-on-scroll.is-in-view {
             opacity: 1;
             transform: translateY(0);
         }
-        .animated-section[data-animation="fadeLeft"].is-visible { transform: translateX(0); }
-        .animated-section[data-animation="fadeLeft"] { transform: translateX(-50px); }
-        .animated-section[data-animation="fadeRight"].is-visible { transform: translateX(0); }
-        .animated-section[data-animation="fadeRight"] { transform: translateX(50px); }
-        .animated-section[data-animation="zoomIn"].is-visible { transform: scale(1); }
-        .animated-section[data-animation="zoomIn"] { transform: scale(0.8); }
+        /* Staggered delay will be applied via JS */
+        .timeline-item.animate-on-scroll {
+             transition-delay: var(--delay, 0s);
+        }
+        .skill-card.animate-on-scroll {
+             transition-delay: var(--delay, 0s);
+        }
+        .project-card.animate-on-scroll {
+             transition-delay: var(--delay, 0s);
+        }
+        .contact-info-card.animate-on-scroll {
+             transition-delay: var(--delay, 0s);
+        }
+
 
         /* --- Home Section --- */
         #home .home-content {
@@ -397,13 +433,16 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            transition: all 0.3s ease;
-            transform: translateY(0);
+            transition: all 0.3s ease, opacity 0.6s ease-out, transform 0.6s ease-out;
+            transform: translateY(30px); /* Start position for animation */
             border: 1px solid var(--border-color);
         }
         .skill-card:hover {
-            transform: translateY(-8px);
+            transform: translateY(-8px) scale(1.02);
             box-shadow: 0 8px 25px var(--shadow-color);
+        }
+        .skill-card.is-in-view:hover {
+            transform: translateY(-8px) scale(1.02); /* Maintain hover effect after animation */
         }
         .skill-card svg {
             width: 2rem;
@@ -488,11 +527,11 @@
             border-radius: 0.5rem;
             overflow: hidden;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transform: translateY(0);
-            transition: all 0.5s ease;
+            transition: all 0.5s ease, opacity 0.6s ease-out, transform 0.6s ease-out;
+            transform: translateY(30px);
             border: 1px solid var(--border-color);
         }
-        .project-card:hover {
+        .project-card.is-in-view:hover {
             transform: translateY(-8px);
             box-shadow: 0 10px 30px var(--shadow-color);
         }
@@ -506,7 +545,7 @@
             object-fit: cover;
             transition: transform 0.5s ease;
         }
-        .project-card:hover img {
+        .project-card.is-in-view:hover img {
             transform: scale(1.1);
         }
         .project-card .content {
@@ -690,11 +729,13 @@
             display: flex;
             align-items: center;
             text-decoration: none;
-            transition: all 0.3s ease;
-            transform: translateY(0);
+            transition: all 0.3s ease, opacity 0.6s ease-out, transform 0.6s ease-out;
+            transform: translateY(30px);
         }
         .contact-info-card:hover {
             border-color: var(--text-accent);
+        }
+        .contact-info-card.is-in-view:hover {
             transform: translateY(-4px);
         }
         .contact-info-icon {
@@ -788,6 +829,10 @@
 </head>
 <body class="dark-mode">
 
+    <div id="progress-bar-container">
+        <div id="progress-bar"></div>
+    </div>
+
     <canvas id="particle-canvas"></canvas>
     <div id="theme-notification"></div>
 
@@ -806,7 +851,7 @@
     </header>
 
     <main>
-        <section id="home" class="animated-section" data-animation="fadeUp">
+        <section id="home">
             <div class="section-bg" style="background-image: url('https://images.unsplash.com/photo-1542435503-956c469947f6?q=80&w=2072&auto=format&fit=crop');"></div>
             <div class="overlay"></div>
             <div class="container content">
@@ -819,40 +864,40 @@
             </div>
         </section>
 
-        <section id="about" class="animated-section" data-animation="fadeLeft">
+        <section id="about">
             <div class="section-bg" style="background-image: url('https://as2.ftcdn.net/v2/jpg/00/89/21/91/1000_F_89219110_Vp8Qm2u2RVi5m2kMSz6a9s5wun4m2nDc.jpg');"></div>
             <div class="overlay"></div>
             <div class="container content">
-                <h2 class="section-title gradient-text">About Me</h2>
-                <div class="about-card">
+                <h2 class="section-title animate-on-scroll">About Me</h2>
+                <div class="about-card animate-on-scroll" style="transition-delay: 0.2s;">
                     <p id="summary-text"></p>
                 </div>
             </div>
         </section>
 
-        <section id="skills" class="animated-section" data-animation="fadeRight">
+        <section id="skills">
             <div class="section-bg" style="background-image: url('https://images.unsplash.com/photo-1628258334105-2a0b3d6efee1');"></div>
             <div class="overlay"></div>
             <div class="container content">
-                <h2 class="section-title gradient-text">Technical Skills</h2>
+                <h2 class="section-title animate-on-scroll">Technical Skills</h2>
                 <div id="skills-grid" class="skills-grid"></div>
             </div>
         </section>
 
-        <section id="experience" class="animated-section" data-animation="fadeUp">
+        <section id="experience">
             <div class="section-bg" style="background-image: url('https://images.unsplash.com/photo-1521737711867-e3b97375f902?q=80&w=1974&auto=format&fit=crop');"></div>
             <div class="overlay"></div>
             <div class="container content">
-                <h2 class="section-title gradient-text">Career Journey</h2>
+                <h2 class="section-title animate-on-scroll">Career Journey</h2>
                 <div class="timeline-container">
-                    <div class="timeline-column">
+                    <div class="timeline-column animate-on-scroll">
                         <h3 class="timeline-title">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path><rect width="20" height="14" x="2" y="6" rx="2"></rect></svg>
                             Professional Experience
                         </h3>
                         <div id="experience-timeline" class="timeline"></div>
                     </div>
-                    <div class="timeline-column">
+                    <div class="timeline-column animate-on-scroll" style="transition-delay: 0.2s;">
                         <h3 class="timeline-title">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
                             Education
@@ -863,32 +908,32 @@
             </div>
         </section>
 
-        <section id="projects" class="animated-section" data-animation="fadeUp">
+        <section id="projects">
             <div class="section-bg" style="background-image: url('https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=2070&auto=format&fit=crop');"></div>
             <div class="overlay"></div>
             <div class="container content">
-                <h2 class="section-title gradient-text">My Projects</h2>
+                <h2 class="section-title animate-on-scroll">My Projects</h2>
                 <div id="projects-grid" class="projects-grid"></div>
             </div>
         </section>
 
-        <section id="future" class="animated-section" data-animation="fadeLeft">
+        <section id="future">
             <div class="section-bg" style="background-image: url('https://images.unsplash.com/photo-1535498730771-e735b998cd64?q=80&w=1974&auto=format&fit=crop');"></div>
             <div class="overlay"></div>
             <div class="container content">
-                 <h2 class="section-title gradient-text">Future Goals & Innovations</h2>
-                 <div id="future-goal-card" class="future-card"></div>
+                 <h2 class="section-title animate-on-scroll">Future Goals & Innovations</h2>
+                 <div id="future-goal-card" class="future-card animate-on-scroll" style="transition-delay: 0.2s;"></div>
             </div>
         </section>
 
-        <section id="contact" class="animated-section" data-animation="zoomIn">
+        <section id="contact">
             <div class="section-bg" style="background-image: url('https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=2070&auto=format&fit=crop');"></div>
             <div class="overlay"></div>
             <div class="container content">
-                <h2 class="section-title gradient-text">Let's Connect</h2>
-                <p class="section-subtitle">I'm always open to discussing new projects, creative ideas, or opportunities to be part of your vision.</p>
+                <h2 class="section-title animate-on-scroll">Let's Connect</h2>
+                <p class="section-subtitle animate-on-scroll">I'm always open to discussing new projects, creative ideas, or opportunities to be part of your vision.</p>
                 <div class="contact-container">
-                    <div class="contact-form-wrapper">
+                    <div class="contact-form-wrapper animate-on-scroll" style="transition-delay: 0.2s;">
                         <h3>Send me a message!</h3>
                         <form id="contact-form">
                             <input type="text" placeholder="Your Name" required>
@@ -897,7 +942,7 @@
                             <button type="submit" class="cta-button full-width">Submit</button>
                         </form>
                     </div>
-                    <div id="contact-info-wrapper" class="contact-info-wrapper"></div>
+                    <div id="contact-info-wrapper" class="contact-info-wrapper" style="transition-delay: 0.4s;"></div>
                 </div>
             </div>
         </section>
@@ -984,6 +1029,7 @@
             
             // --- DOM Elements ---
             const body = document.body;
+            const progressBar = document.getElementById('progress-bar');
             const themeToggleBtn = document.getElementById('theme-toggle-btn');
             const themeToggleSlider = document.getElementById('theme-toggle-slider');
             const themeNotification = document.getElementById('theme-notification');
@@ -1008,7 +1054,7 @@
                 // Skills
                 const skillsGrid = document.getElementById('skills-grid');
                 skillsGrid.innerHTML = portfolioData.skills.map(skill => `
-                    <div class="skill-card">
+                    <div class="skill-card animate-on-scroll">
                         <div style="color: ${skill.color}">${skill.icon}</div>
                         <span>${skill.name}</span>
                     </div>
@@ -1017,7 +1063,7 @@
                 // Experience & Education
                 const expTimeline = document.getElementById('experience-timeline');
                 expTimeline.innerHTML = portfolioData.experience.map(job => `
-                    <div class="timeline-item">
+                    <div class="timeline-item animate-on-scroll">
                         <div class="timeline-dot"></div>
                         <h4>${job.role}</h4>
                         <p class="sub-heading">${job.company}</p>
@@ -1027,7 +1073,7 @@
                 `).join('');
                 const eduTimeline = document.getElementById('education-timeline');
                 eduTimeline.innerHTML = portfolioData.education.map(edu => `
-                    <div class="timeline-item">
+                    <div class="timeline-item animate-on-scroll">
                         <div class="timeline-dot"></div>
                         <h4>${edu.degree}</h4>
                         <p class="sub-heading">${edu.institution}</p>
@@ -1038,7 +1084,7 @@
                 // Projects
                 const projectsGrid = document.getElementById('projects-grid');
                 projectsGrid.innerHTML = portfolioData.projects.map(p => `
-                    <div class="project-card">
+                    <div class="project-card animate-on-scroll">
                         <div class="image-container">
                             <img src="${p.image}" alt="${p.title}" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/600x400/1a202c/9ca3af?text=Image+Error';">
                         </div>
@@ -1075,21 +1121,29 @@
                 // Contact
                 const contactInfo = document.getElementById('contact-info-wrapper');
                 contactInfo.innerHTML = `
-                    <a href="mailto:${portfolioData.contact.email}" class="contact-info-card">
+                    <a href="mailto:${portfolioData.contact.email}" class="contact-info-card animate-on-scroll">
                         <div class="contact-info-icon">${ICONS.Mail}</div>
                         <div class="contact-info-text"><h4>Email</h4><p>${portfolioData.contact.email}</p></div>
                     </a>
-                    <a href="tel:${portfolioData.contact.phone}" class="contact-info-card">
+                    <a href="tel:${portfolioData.contact.phone}" class="contact-info-card animate-on-scroll">
                         <div class="contact-info-icon">${ICONS.Phone}</div>
                         <div class="contact-info-text"><h4>Phone</h4><p>${portfolioData.contact.phone}</p></div>
                     </a>
-                    <div class="contact-info-card">
+                    <div class="contact-info-card animate-on-scroll">
                         <div class="contact-info-icon">${ICONS.MapPin}</div>
                         <div class="contact-info-text"><h4>Location</h4><p>${portfolioData.contact.location}</p></div>
                     </div>
                 `;
                 document.getElementById('whatsapp-link').href = `https://api.whatsapp.com/send?phone=91${portfolioData.contact.phone}&text=${encodeURIComponent("Hi Amit, I'm contacting you from your portfolio.")}`;
             };
+            
+            // --- SCROLL PROGRESS BAR ---
+            const updateProgressBar = () => {
+                const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+                const scrollPercent = (scrollTop / (scrollHeight - clientHeight)) * 100;
+                progressBar.style.width = `${scrollPercent}%`;
+            };
+            window.addEventListener('scroll', updateProgressBar);
 
             // --- THEME ---
             let currentTheme = localStorage.getItem('theme') || 'dark';
@@ -1148,17 +1202,25 @@
                 type();
             };
             
-            // --- SCROLL ANIMATIONS ---
-            const animatedSections = document.querySelectorAll('.animated-section');
-            const sectionObserver = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('is-visible');
-                        observer.unobserve(entry.target);
-                    }
+            // --- ENHANCED SCROLL ANIMATIONS ---
+            const setupScrollAnimations = () => {
+                const animatedElements = document.querySelectorAll('.animate-on-scroll');
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-in-view');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.1 });
+
+                animatedElements.forEach((el, index) => {
+                     // Apply a staggered delay
+                    const delay = (index % 5) * 100; // Stagger in groups of 5
+                    el.style.transitionDelay = `${delay}ms`;
+                    observer.observe(el);
                 });
-            }, { threshold: 0.1 });
-            animatedSections.forEach(section => sectionObserver.observe(section));
+            };
             
             // --- NAVIGATION ---
             let activeSection = 'home';
@@ -1217,11 +1279,7 @@
 
             class Particle {
                 constructor(x, y, dirX, dirY, size) {
-                    this.x = x;
-                    this.y = y;
-                    this.dirX = dirX;
-                    this.dirY = dirY;
-                    this.size = size;
+                    this.x = x; this.y = y; this.dirX = dirX; this.dirY = dirY; this.size = size;
                 }
                 draw() {
                     ctx.beginPath();
@@ -1233,9 +1291,7 @@
                 update() {
                     if (this.x > canvas.width || this.x < 0) this.dirX = -this.dirX;
                     if (this.y > canvas.height || this.y < 0) this.dirY = -this.dirY;
-                    this.x += this.dirX;
-                    this.y += this.dirY;
-                    this.draw();
+                    this.x += this.dirX; this.y += this.dirY; this.draw();
                 }
             }
 
@@ -1267,11 +1323,8 @@
                 }, 100);
             });
             
-            // Re-init particles on theme change
             new MutationObserver((mutations) => {
-                if (mutations[0].attributeName === 'class') {
-                    initParticles();
-                }
+                if (mutations[0].attributeName === 'class') { initParticles(); }
             }).observe(body, { attributes: true });
 
             
@@ -1281,6 +1334,7 @@
             resizeCanvas();
             initParticles();
             animateParticles();
+            setupScrollAnimations(); // Setup new animations after data is injected
         });
     </script>
 </body>
