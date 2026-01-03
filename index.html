@@ -7,6 +7,146 @@
     <title>Amit Sharma | Software Developer</title>
 
     <style>
+        /* ===== ULTIMATE INTRO STYLE ===== */
+/* ===== ULTRA CINEMATIC INTRO ===== */
+/* ===== ULTRA UNIQUE FUTURISTIC INTRO ===== */
+#intro-overlay{
+    position:fixed;
+    inset:0;
+    background:
+      radial-gradient(circle at center, #020617 0%, #000 70%);
+    z-index:999999;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+}
+
+/* Core container */
+.intro-core{
+    position:relative;
+    text-align:center;
+    transform:scale(.6);
+    animation:coreZoom 1.2s cubic-bezier(.19,1,.22,1) forwards;
+}
+
+@keyframes coreZoom{
+    to{transform:scale(1);}
+}
+
+/* Energy ring */
+.energy-ring{
+    position:absolute;
+    inset:-80px;
+    border-radius:50%;
+    border:2px solid rgba(56,189,248,.15);
+}
+.energy-ring::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    border:3px solid transparent;
+    border-top-color:#38bdf8;
+    border-right-color:#34d399;
+    animation:ringSpin 1.2s linear infinite;
+}
+@keyframes ringSpin{
+    to{transform:rotate(360deg);}
+}
+
+/* Name animation */
+.intro-name{
+    font-size:clamp(2.8rem,8vw,5.5rem);
+    font-weight:900;
+    letter-spacing:6px;
+    color:white;
+    display:inline-flex;
+    gap:2px;
+    text-shadow:0 0 40px rgba(56,189,248,.35);
+}
+
+.intro-name span{
+    opacity:0;
+    transform:translateY(40px);
+    animation:letterPop .6s ease forwards;
+}
+
+.intro-name span:nth-child(n){
+    animation-delay:calc(var(--i) * .08s);
+}
+
+.intro-name span.gap{
+    width:18px;
+}
+
+/* manual delays */
+.intro-name span:nth-child(1){--i:1}
+.intro-name span:nth-child(2){--i:2}
+.intro-name span:nth-child(3){--i:3}
+.intro-name span:nth-child(4){--i:4}
+.intro-name span:nth-child(6){--i:5}
+.intro-name span:nth-child(7){--i:6}
+.intro-name span:nth-child(8){--i:7}
+.intro-name span:nth-child(9){--i:8}
+.intro-name span:nth-child(10){--i:9}
+.intro-name span:nth-child(11){--i:10}
+
+@keyframes letterPop{
+    to{opacity:1; transform:translateY(0);}
+}
+
+/* Scan line */
+.scan-line{
+    width:100%;
+    height:2px;
+    background:linear-gradient(to right, transparent,#38bdf8,transparent);
+    margin:18px 0;
+    animation:scan 2s ease-in-out infinite;
+}
+@keyframes scan{
+    0%{opacity:.2}
+    50%{opacity:1}
+    100%{opacity:.2}
+}
+
+/* Progress bar */
+.progress-bar{
+    width:260px;
+    height:4px;
+    background:rgba(255,255,255,.1);
+    border-radius:999px;
+    overflow:hidden;
+    margin:16px auto;
+}
+.progress-bar span{
+    display:block;
+    height:100%;
+    width:0;
+    background:linear-gradient(90deg,#38bdf8,#34d399);
+    animation:loadBar 3s ease forwards;
+}
+@keyframes loadBar{
+    to{width:100%}
+}
+
+/* Tagline */
+.intro-tag{
+    letter-spacing:6px;
+    font-size:.9rem;
+    color:#94a3b8;
+    margin-top:6px;
+    opacity:0;
+    animation:fadeIn .8s ease forwards;
+    animation-delay:1.4s;
+}
+@keyframes fadeIn{
+    to{opacity:1}
+}
+
+
+
+
         /* --- Google Font & Base Styles --- */
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap');
 
@@ -1071,6 +1211,30 @@
 </head>
 
 <body class="dark-mode">
+<div id="intro-overlay">
+    <div class="intro-core">
+
+        <div class="energy-ring"></div>
+
+        <h1 class="intro-name">
+            <span>A</span><span>m</span><span>i</span><span>t</span>
+            <span class="gap"></span>
+            <span>S</span><span>h</span><span>a</span><span>r</span><span>m</span><span>a</span>
+        </h1>
+
+        <div class="scan-line"></div>
+
+        <div class="progress-bar">
+            <span></span>
+        </div>
+
+        <p class="intro-tag">SOFTWARE DEVELOPER</p>
+
+    </div>
+</div>
+
+
+
     <canvas id="particle-canvas"></canvas>
 
     <header id="main-header">
@@ -1193,6 +1357,17 @@
 
 
     <script>
+        window.addEventListener("load",()=>{
+    setTimeout(()=>{
+        const intro=document.getElementById("intro-overlay");
+        if(intro){
+            intro.style.transition="opacity 1s ease, transform 1s ease";
+            intro.style.opacity="0";
+            intro.style.transform="scale(1.2)";
+            setTimeout(()=>intro.remove(),1000);
+        }
+    },4000);
+});
         document.addEventListener('DOMContentLoaded', () => {
 
             const ICONS = {
@@ -1256,7 +1431,7 @@
                             <p>${portfolioData.summary}</p>
                             <div class="about-stats">${statsHTML}</div>
                             <div class="about-buttons">
-                                <a href="${portfolioData.ResumeUrl}" class="cta-button secondary" download>Download CV</a>
+                                <a href="${portfolioData.resumeUrl}" class="cta-button secondary" download>Download CV</a>
                                 <a href="#contact" class="cta-button">Contact Me</a>
                             </div>
                         </div>
